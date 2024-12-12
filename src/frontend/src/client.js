@@ -9,3 +9,13 @@ const checkStatus = (response) => {
 
 export const getAllStudents = () =>
   fetch("java-react-api/students").then(checkStatus);
+
+export const addStudent = student =>
+  fetch("api/v1/students", {
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          method: 'POST',
+          body: JSON.stringify(student)
+      }
+  ).then(checkStatus)

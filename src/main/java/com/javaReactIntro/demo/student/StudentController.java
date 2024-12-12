@@ -1,33 +1,31 @@
 package com.javaReactIntro.demo.student;
 
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.Arrays;
+import lombok.AllArgsConstructor;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 import java.util.List;
 
 @RestController
 @RequestMapping(path = "java-react-api/students")
+@AllArgsConstructor
 public class StudentController {
+
+    private final StudentService studentService;
 
     @GetMapping
     public List<Student> getAllStudents(){
-        List<Student> students = Arrays.asList(
-            new Student(
-                1L,
-                "John",
-                "john.doe@gmail.com",
-                Gender.MALE
-            ),
-            new Student(
-                2L,
-                "Jane",
-                "jane.doe@gmail.com",
-                Gender.FEMALE
-            )
-        );
-        return students;
+        return studentService.getAllStudents();
+    }
+
+    @PostMapping
+    public void addStudent(@RequestBody Student student){
+        studentService.addStudent(student);
     }
 
 }

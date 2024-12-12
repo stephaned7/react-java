@@ -1,6 +1,17 @@
+import React from "react";
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 import { useState, useEffect } from "react";
 
-import { Layout, Menu, Breadcrumb, Table } from "antd";
+import StudentDrawerForm from "./studentDrawerForm";
+
+import {
+  Layout, Menu,
+  Breadcrumb,
+  Table,
+  Spin,
+  Empty
+} from "antd";
 
 import {
   DesktopOutlined,
@@ -8,6 +19,7 @@ import {
   PieChartOutlined,
   TeamOutlined,
   UserOutlined,
+  LoadingOutlined
 } from "@ant-design/icons";
 
 import { getAllStudents } from "./client";
@@ -15,7 +27,7 @@ import { getAllStudents } from "./client";
 import "./App.css";
 
 const { Header, Content, Footer, Sider } = Layout;
-const { SubMenu } = Menu;
+const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
 const getItem = (label, key, icon, children) => {
   return {
@@ -74,13 +86,17 @@ const breadcrumbItems = [
 
 function App() {
   const [students, setStudents] = useState([]);
-
   const [collapsed, setCollapsed] = useState(false);
+  const [fetching, setFetching] = useState(true);
+  const [showDrawer, setShowDrawer] = useState(false);
 
   const fetchStudents = () =>
     getAllStudents()
-      .then((res) => res.json())
-      .then((data) => setStudents(data));
+      .then(res => res.json())
+      .then(data => {
+        setStudents(data);
+        setFetching(false);
+      });
 
   useEffect(() => {
     console.log("component is mounted");
@@ -88,11 +104,32 @@ function App() {
   }, []);
 
   const renderStudents = () => {
+    if (fetching) {
+      return <Spin indicator={antIcon} />;
+    }
     if (!students || students.length <= 0) {
-      return "No data available";
+      return <Empty />;
     }
 
-    return <Table dataSource={students.map(student => ({ ...student, key: student.id }))} columns={columns}></Table>;
+    return (
+      <>
+      <StudentDrawerForm
+        showDrawer={showDrawer}
+        setShowDrawer={setShowDrawer}/>
+
+      <Table
+        dataSource={students}
+        columns={columns}
+        rowKey={(student) => student.id}
+        bordered
+        title={() => (
+          <button className="btn btn-primary" onClick={() => setShowDrawer(!showDrawer)}>Add a student</button>
+        )}
+        pagination={{ pageSize: 50 }}
+        scroll={{ y: 500 }}
+      />
+      </>
+    );
   };
 
   return (
@@ -122,8 +159,7 @@ function App() {
               {renderStudents()}
             </div>
           </Content>
-          <Footer style={{ textAlign: "center" }}>
-          </Footer>
+          <Footer style={{ textAlign: "center" }}></Footer>
         </Layout>
       </Layout>
     </>
